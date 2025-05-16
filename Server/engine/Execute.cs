@@ -38,7 +38,7 @@ namespace Florence.ServerAssembly
 
         public void Create_And_Run_Graphics()
         {
-            new Florence.ServerAssembly.Graphics.MainWindow().Run(60);
+            new Florence.ServerAssembly.Game_Instance().Run(144);
         }
 
         public Execute_Control GetExecute_Control()

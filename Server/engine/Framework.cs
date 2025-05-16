@@ -16,14 +16,9 @@ namespace Florence.ServerAssembly
             game_server.GetExecute().Initialise();
             System.Console.WriteLine("created => Florence.ServerAssembly.Server()");//TestBench
 
-            Florence.Server_IO.Library.Create_Hosting_Server();//todo
-            System.Console.WriteLine("created => Server_Library.Framework_Server()");//TestBench
+            Florence.ServerAssembly.Framework.GetGameServer().GetExecute().Create_And_Run_Graphics();
 
-            game_server.GetExecute().Initialise_Threads();//todo
-
-            //Florence.ServerAssembly.Framework.GetGameServer().GetExecute().Create_And_Run_Graphics();
-
-            System.Console.WriteLine("skipped => Valve.Networking()");//TestBench
+            System.Console.WriteLine("Framework . Done");//TestBench
         }
 
         static public Florence.ServerAssembly.Server GetGameServer()
