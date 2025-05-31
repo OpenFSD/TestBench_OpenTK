@@ -26,29 +26,8 @@ using (Florence.ServerAssembly.Game_InstanceForSphere gameInstance = new Florenc
 
 ## Game_InstanceForPlane()
 
-line 141: 
-````
-protected override void OnUpdateFrame(FrameEventArgs e)
-{
-            _time += e.Time;
-            foreach (var item in _gameObjects)
-            {
-                item.Update(_time, e.Time);
-            }
-            HandleKeyboard(e.Time);
-            HandleMouse();
-            switch (cameraSelector)
-            {
-            case false:
-                Get_gameObjectFactory().Get_player().Get_CameraFPOS().Update(_time, e.Time);
-                break;
+line 141: ````protected override void OnUpdateFrame(FrameEventArgs e)````
 
-            case true:
-                Get_gameObjectFactory().Get_player().Get_CameraTPOS().Update(_time, e.Time);
-                break;
-            }
-        }
-````
 
 ## Game_InstanceForSphere()
 
