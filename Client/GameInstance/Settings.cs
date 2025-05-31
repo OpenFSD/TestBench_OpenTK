@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Florence.ClientAssembly.game_Instance
+namespace ClientAssembly.GameInstance
 {
     public class Settings
     {
@@ -17,7 +17,7 @@ namespace Florence.ClientAssembly.game_Instance
 
         public Settings()
         {
-            System.Console.WriteLine("Florence.ClientAssembly: Settings");
+            Console.WriteLine("Florence.ClientAssembly: Settings");
             set_ScreenSize_X((char)1920);
             set_ScreenSize_Y((char)1080);
             Set_fov(90f);

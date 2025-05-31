@@ -38,7 +38,18 @@ namespace Florence.ServerAssembly
 
         public void Create_And_Run_Graphics()
         {
-            new Florence.ServerAssembly.Game_Instance().Run(144);
+
+            using (Florence.ServerAssembly.Game_InstanceForPlane gameInstance = new Florence.ServerAssembly.Game_InstanceForPlane())
+            {
+                gameInstance.Run(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_refreshRate());
+            }
+
+/*
+            using (Florence.ServerAssembly.Game_InstanceForSphere gameInstance = new Florence.ServerAssembly.Game_InstanceForSphere())
+            {
+                gameInstance.Run(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_refreshRate());
+            }
+*/
         }
 
         public Execute_Control GetExecute_Control()

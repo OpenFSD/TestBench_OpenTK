@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Florence.ServerAssembly
@@ -7,8 +6,9 @@ namespace Florence.ServerAssembly
     public class Data
     {
         static private Florence.ServerAssembly.Data_Control data_Control;
-        static private Florence.ServerAssembly.Game_Instance gameInstance;
-        //static private Florence.ServerAssembly.game_Instance.Settings settings;
+        static private Florence.ServerAssembly.Game_InstanceForPlane gameInstanceOP;
+        static private Florence.ServerAssembly.Game_InstanceForSphere gameInstanceOS;
+        static private Florence.ServerAssembly.GameInstance.Settings settings;
         //byffers
         static private Florence.ServerAssembly.Inputs.Input_Instance input_Instnace;
         static private Florence.ServerAssembly.Outputs.Output_Instance output_Instnace;
@@ -25,11 +25,15 @@ namespace Florence.ServerAssembly
         public Data()
         {
             data_Control = null;
-            gameInstance = new Florence.ServerAssembly.Game_Instance();
-            while (gameInstance == null) { /* Wait while is created */ }
+            
+            gameInstanceOS = new Florence.ServerAssembly.Game_InstanceForSphere();
+            while (gameInstanceOS == null) { /* Wait while is created */ }
 
-            //settings = new Florence.ServerAssembly.game_Instance.Settings();
-            //while (settings == null) { /* Wait while is created */ }
+            gameInstanceOP = new Florence.ServerAssembly.Game_InstanceForPlane();
+            while (gameInstanceOP == null) { /* Wait while is created */ }
+
+            settings = new Florence.ServerAssembly.GameInstance.Settings();
+            while (settings == null) { /* Wait while is created */ }
 
             input_Instnace = new Florence.ServerAssembly.Inputs.Input_Instance();
             output_Instnace = new Florence.ServerAssembly.Outputs.Output_Instance();
@@ -80,9 +84,13 @@ namespace Florence.ServerAssembly
             return data_Control;
         }
 
-        public Florence.ServerAssembly.Game_Instance GetGame_Instance()
+        public Florence.ServerAssembly.Game_InstanceForPlane GetGame_InstanceOP()
         {
-            return gameInstance;
+            return gameInstanceOP;
+        }
+        public Florence.ServerAssembly.Game_InstanceForSphere GetGame_InstanceOS()
+        {
+            return gameInstanceOS;
         }
         public Florence.ServerAssembly.Inputs.Input_Instance GetInput_Instnace()
         {
@@ -101,10 +109,10 @@ namespace Florence.ServerAssembly
             return state_Buffer_OutputPraise_SideToWrite;
         }
 
-        //public Florence.ServerAssembly.game_Instance.Settings GetSettings()
-        //{
-        //    return settings;
-        //}
+        public ServerAssembly.GameInstance.Settings GetSettings()
+        {
+            return settings;
+        }
         public List<Florence.ServerAssembly.Inputs.Input> GetStack_InputPraise()
         {
             return stack_InputPraise;

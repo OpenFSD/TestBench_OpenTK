@@ -10,7 +10,7 @@ namespace Florence.ClientAssembly
     {
         static private Florence.ClientAssembly.Data_Control data_Control;
         //static private Florence.ClientAssembly.Game_Instance gameInstance;
-        static private Florence.ClientAssembly.game_Instance.Settings settings;
+        static private ClientAssembly.GameInstance.Settings settings;
         //byffers
         static private Florence.ClientAssembly.Inputs.Input_Instance input_Instnace;
         static private Florence.ClientAssembly.Outputs.Output_Instance output_Instnace;
@@ -93,7 +93,7 @@ namespace Florence.ClientAssembly
             return state_Buffer_Output_ToWrite;
         }
 
-        public Florence.ClientAssembly.game_Instance.Settings GetSettings()
+        public ClientAssembly.GameInstance.Settings GetSettings()
         {
             return settings;
         }

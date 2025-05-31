@@ -1,39 +1,39 @@
 ﻿using OpenTK;
 using Florence.ServerAssembly.Graphics.GameObjects;
+using Florence.ServerAssembly.GameInstance;
 
 namespace Florence.ServerAssembly.Graphics.Cameras
 {
-    public class FirstPersonCamera : ICamera
+    public class OnSphereFirstPersonCamera : ICamera
     {
         public Matrix4 LookAtMatrix { get; private set; }
         private readonly AGameObject _target;
         private readonly Vector3 _offset;
         private float _pitch;
         private float _yaw;
-        private float _roll;
         private Vector3 _fowards;
         private Vector3 _up;
         private Vector3 _right;
 
-        public FirstPersonCamera(AGameObject target)
+        public OnSphereFirstPersonCamera(AGameObject target)
             : this(target, Vector3.Zero)
         {}
-        public FirstPersonCamera(AGameObject target, Vector3 offset)
+        public OnSphereFirstPersonCamera(AGameObject target, Vector3 offset)
         {
             _target = target;
             _offset = offset;
-            _pitch = 0f;
-            _yaw = 0f;
-            _fowards = new Vector3(1f, 0f, 0f);
-            _up = new Vector3(0f, 1f, 0f);
-            _right = new Vector3(0f, 0f, 1f);
+            _pitch = (float)(Math.PI / 4);
+            _yaw = (float)(Math.PI / 4);
+            _up = _target.Get_Position().Normalized();
+            _fowards = new Vector3(MathF.Cos(_pitch) * MathF.Cos(_yaw), MathF.Sin(_pitch), MathF.Cos(_pitch) * MathF.Sin(_yaw));
+            _right = Vector3.Cross(_up, _fowards);
         }
        
         public void Update(double time, double delta)
         {
             LookAtMatrix = Matrix4.LookAt(
-                new Vector3(_target.Position) + _offset,  
-                new Vector3(_target.Position + _fowards) + _offset, 
+                new Vector3(_target.Get_Position()) + _offset,  
+                new Vector3(_target.Get_Position() + _fowards) + _offset, 
                 _up);
         }
         public void Update_Pitch(float deltaDegY)
@@ -60,6 +60,23 @@ namespace Florence.ServerAssembly.Graphics.Cameras
                 Set_Yaw(Get_Yaw() + (float)(Math.PI * 2));
             }
         }
+        public void Update_Fowards_Rotations(Vector3 newFowards)
+        {
+            float temp = (Vector3.Cross(new Vector3(newFowards.X, 0, 0), new Vector3(Get_fowards().X, 0, 0))).Length / (new Vector3(Get_fowards().X, 0, 0).Length * new Vector3(newFowards.X, 0, 0).Length);
+            temp = Math.Clamp(temp, -1f, 1f);
+            float angleAroundX = (float)Math.Asin(temp);
+
+            temp = (Vector3.Cross(new Vector3(0, newFowards.Y, 0), new Vector3(0, Get_fowards().Y, 0))).Length / (new Vector3(0, Get_fowards().Y, 0).Length * new Vector3(0, newFowards.Y, 0).Length);
+            temp = Math.Clamp(temp, -1f, 1f);
+            float angleAroundY = (float)Math.Asin(temp);
+
+            temp = (Vector3.Cross(new Vector3(0, 0, newFowards.Z), new Vector3(0, 0, Get_fowards().Z))).Length / (new Vector3(0, 0, Get_fowards().Z).Length * new Vector3(0, 0, newFowards.Z).Length);
+            temp = Math.Clamp(temp, -1f, 1f);
+            float angleAroundZ = (float)Math.Asin(temp);
+
+            _target.Set_Rotation(new Vector3(angleAroundX, angleAroundY, angleAroundZ));
+            System.Console.WriteLine("TESTBENCH => delta_angleAroundX = " + angleAroundX + "  delta_angleAroundY = " + angleAroundY + "  delta_angleAroundZ = " + angleAroundZ);
+        }
         public void UpdateVectors()
         {
             Vector3 fowards = new Vector3(0, 0, 0);
@@ -71,39 +88,13 @@ namespace Florence.ServerAssembly.Graphics.Cameras
             float _deltaYaw = Vector3.CalculateAngle(new Vector3(0, _fowards.Y, 0), new Vector3(0, fowards.Y, 0));
             float _deltaRoll = Vector3.CalculateAngle(new Vector3(0, 0, _fowards.Z), new Vector3(0, 0, fowards.Z));
 
-            _fowards = Vector3.Normalize(fowards);
+            //_fowards = Vector3.Normalize(fowards);
 
-            _up = RotateVector(_up, _deltaPitch, _deltaYaw, _deltaRoll);
+            //_up =;
 
-            _right = Vector3.Normalize(Vector3.Cross(_fowards, _up));
+            //_right = Vector3.Normalize(Vector3.Cross(_fowards, _up));
         }
-        private static Vector3 RotateVector(Vector3 vector, float pitch, float yaw, float roll)
-        {
-            // Convert angles to radians
-            float pitchRadians = MathHelper.DegreesToRadians(pitch);
-            float yawRadians = MathHelper.DegreesToRadians(yaw);
-            float rollRadians = MathHelper.DegreesToRadians(roll);
 
-            // Create rotation matrices for pitch, yaw, and roll
-            Matrix4 pitchMatrix = Matrix4.CreateRotationX(pitchRadians);
-            Matrix4 yawMatrix = Matrix4.CreateRotationY(yawRadians);
-            Matrix4 rollMatrix = Matrix4.CreateRotationZ(rollRadians);
-
-            // Combine the rotations (apply in order: yaw, then pitch, then roll)
-            Matrix4 rotationMatrix4 = yawMatrix * pitchMatrix * rollMatrix;
-            Matrix3 rotationMatrix3 = new Matrix3();
-            rotationMatrix3.M11 = rotationMatrix4.M11;
-            rotationMatrix3.M12 = rotationMatrix4.M12;
-            rotationMatrix3.M13 = rotationMatrix4.M13;
-            rotationMatrix3.M21 = rotationMatrix4.M21;
-            rotationMatrix3.M22 = rotationMatrix4.M22;
-            rotationMatrix3.M23 = rotationMatrix4.M23;
-            rotationMatrix3.M31 = rotationMatrix4.M31;
-            rotationMatrix3.M32 = rotationMatrix4.M32;
-            rotationMatrix3.M33 = rotationMatrix4.M33;
-            // Apply the rotation to the vector
-            return Vector3.Transform(vector, rotationMatrix3);
-        }
         //get
         public float Get_Pitch()
         {

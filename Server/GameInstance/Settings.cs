@@ -5,19 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Florence.ClientAssembly.game_Instance
+namespace Florence.ServerAssembly.GameInstance
 {
     public class Settings
     {
         private float _fov = 45f;
-        private static int _refreshRate = 60;
+        private static int _refreshRate = 144;
         private static bool _systemInitialised = false;
         private char _screenSize_X;
         private char _screenSize_Y;
 
+        private bool mapSphereOrPlane = true;
+
         public Settings()
         {
-            System.Console.WriteLine("Florence.ClientAssembly: Settings");
+            Console.WriteLine("Florence.ClientAssembly: Settings");
             set_ScreenSize_X((char)1920);
             set_ScreenSize_Y((char)1080);
             Set_fov(90f);
@@ -39,7 +41,10 @@ namespace Florence.ClientAssembly.game_Instance
         {
             return _screenSize_Y;
         }
-
+        public bool Get_mapSphereOrPlane()
+        {
+            return mapSphereOrPlane;
+        }
         //SET
         public void Set_fov(float value)
         {
@@ -56,6 +61,10 @@ namespace Florence.ClientAssembly.game_Instance
         public void set_ScreenSize_Y(char value)
         {
             _screenSize_Y = value;
+        }
+        public void Set_mapSphereOrPlane(bool value)
+        {
+            mapSphereOrPlane = value;
         }
         public static bool Get_systemInitialised()
         {

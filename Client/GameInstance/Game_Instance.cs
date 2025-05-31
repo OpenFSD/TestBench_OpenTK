@@ -11,7 +11,7 @@ using Florence.ClientAssembly.Graphics.GameObjects;
 using Florence.ClientAssembly.Graphics.Renderables;
 using Florence.ClientAssembly.Graphics;
 
-namespace Florence.ClientAssembly
+namespace ClientAssembly.GameInstance
 {
     public sealed class Game_Instance : GameWindow
     {

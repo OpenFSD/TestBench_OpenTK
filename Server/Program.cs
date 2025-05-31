@@ -12,12 +12,6 @@ namespace Florence.ServerAssembly
         {
             framework_ServerAssembly = new Florence.ServerAssembly.Framework();
             while (framework_ServerAssembly == null) { /* wait until class created */ }
-
-            while (true)
-            {
-
-            }
         }
-
     }
 }
