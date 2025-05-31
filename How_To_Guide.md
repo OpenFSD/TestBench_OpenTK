@@ -1,8 +1,10 @@
 # How To Guide For Florence - Full stack Development TEMPLATE.
 
 ## Server
+C:\Users\drago\source\repos\TestBench_OpenTK\Server\engine\Execute.cs
+line 39: ````public void Create_And_Run_Graphics()````
 
-### Planar Map
+ - Planar Map
 ````
 using (Florence.ServerAssembly.Game_InstanceForPlane gameInstance = new Florence.ServerAssembly.Game_InstanceForPlane())
 {
@@ -10,7 +12,7 @@ using (Florence.ServerAssembly.Game_InstanceForPlane gameInstance = new Florence
 }
 ````
 
-### Globular Map
+ - Globular Map
 ````
 using (Florence.ServerAssembly.Game_InstanceForSphere gameInstance = new Florence.ServerAssembly.Game_InstanceForSphere())
 {
