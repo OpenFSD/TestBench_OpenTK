@@ -3,6 +3,12 @@
 ## Server
 
 ### Planar Map
+````
+using (Florence.ServerAssembly.Game_InstanceForPlane gameInstance = new Florence.ServerAssembly.Game_InstanceForPlane())
+{
+    gameInstance.Run(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_refreshRate());
+}
+````
 
 ### Globular Map
 ````
