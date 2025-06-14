@@ -15,6 +15,9 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
         protected Vector3 _position;
         protected Vector3 _direction;
         protected Vector3 _rotation;
+        private Vector3 _fowards;
+        private Vector3 _up;
+        private Vector3 _right;
         protected float _speed;
         protected Matrix4 _modelView;
         protected Vector3 _scale;
@@ -25,6 +28,9 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
             _position = position;
             _direction = direction;
             _rotation = rotation;
+            _fowards = new Vector3(1f, 0f, 0f).Normalized();
+            _up = position.Normalized();
+            _right = Vector3.Cross(_fowards, _up);
             _speed = speed;
             _scale = new Vector3(1);
             GameObjectNumber = GameObjectCounter++;
@@ -91,7 +97,10 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
         {
             return _position;
         }
-
+        public Vector3 Get_Fowards()
+        {
+            return _fowards;
+        }
         public Vector3 Get_Rotation()
         {
             return _rotation;

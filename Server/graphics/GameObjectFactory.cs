@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenTK;
+﻿using OpenTK;
 using Florence.ServerAssembly.Graphics.GameObjects;
 using Florence.ServerAssembly.Graphics.Renderables;
-using ServerAssembly.GameInstance;
-using static System.Formats.Asn1.AsnWriter;
-using System.Reflection;
 
 namespace Florence.ServerAssembly.Graphics
 {
@@ -19,7 +14,7 @@ namespace Florence.ServerAssembly.Graphics
         }
         public Asteroid Create_MapSphereFloor()
         {
-            return CreateSphericalAsteroid("Earth", new Vector3(0f, 0f, 0f), new Vector3(100f));
+            return CreateSphericalAsteroid("Earth", new Vector3(0f, 0f, 0f), new Vector3(100f, 100f, 100f));
         }
         public void Create_MapPlaneFloor()
         {
@@ -40,9 +35,9 @@ namespace Florence.ServerAssembly.Graphics
         {
             _player = new Florence.ServerAssembly.GameInstance.Player(
                 _models["Player"],
-                new OpenTK.Vector3(1f, 1f, 1f).Normalized() * 101f,
+                new OpenTK.Vector3(1f, 1f, 1f).Normalized() * 110f,
                 Vector3.Zero,
-                new OpenTK.Vector3((float)Math.PI/4, (float)Math.PI / 4, (float)Math.PI / 4),
+                new OpenTK.Vector3((float)Math.PI*3/4, (float)Math.PI*3/4, (float)Math.PI*3/4),
                 0
             );
             while (_player == null) { /* Wait while is created */ }

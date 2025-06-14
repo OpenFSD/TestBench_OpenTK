@@ -7,7 +7,7 @@ namespace Florence.ServerAssembly
     {
         static private Florence.ServerAssembly.Data_Control data_Control;
         static private Florence.ServerAssembly.Game_InstanceForPlane gameInstanceOP;
-        static private Florence.ServerAssembly.Game_InstanceForSphere gameInstanceOS;
+        static private Florence.GameInstance.Game_InstanceForSphere gameInstanceOS;
         static private Florence.ServerAssembly.GameInstance.Settings settings;
         //byffers
         static private Florence.ServerAssembly.Inputs.Input_Instance input_Instnace;
@@ -26,7 +26,7 @@ namespace Florence.ServerAssembly
         {
             data_Control = null;
             
-            gameInstanceOS = new Florence.ServerAssembly.Game_InstanceForSphere();
+            gameInstanceOS = new Florence.GameInstance.Game_InstanceForSphere();
             while (gameInstanceOS == null) { /* Wait while is created */ }
 
             gameInstanceOP = new Florence.ServerAssembly.Game_InstanceForPlane();
@@ -88,7 +88,7 @@ namespace Florence.ServerAssembly
         {
             return gameInstanceOP;
         }
-        public Florence.ServerAssembly.Game_InstanceForSphere GetGame_InstanceOS()
+        public Florence.GameInstance.Game_InstanceForSphere GetGame_InstanceOS()
         {
             return gameInstanceOS;
         }

@@ -14,6 +14,9 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         private Vector3 _fowards;
         private Vector3 _up;
         private Vector3 _right;
+        private Vector3 _axisX;
+        private Vector3 _axisY;
+        private Vector3 _axisZ;
 
         public OnSphereFirstPersonCamera(AGameObject target)
             : this(target, Vector3.Zero)
@@ -22,19 +25,22 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         {
             _target = target;
             _offset = offset;
-            _pitch = (float)(Math.PI / 4);
-            _yaw = (float)(Math.PI / 4);
+            _pitch = (float)Math.PI * 3 / 4;
+            _yaw = (float)Math.PI * 3 / 4;
             _up = _target.Get_Position().Normalized();
             _fowards = new Vector3(MathF.Cos(_pitch) * MathF.Cos(_yaw), MathF.Sin(_pitch), MathF.Cos(_pitch) * MathF.Sin(_yaw));
             _right = Vector3.Cross(_up, _fowards);
+            _axisX = _fowards;
+            _axisY = _up;
+            _axisZ = _right;
         }
        
         public void Update(double time, double delta)
         {
             LookAtMatrix = Matrix4.LookAt(
-                new Vector3(_target.Get_Position()) + _offset,  
-                new Vector3(_target.Get_Position() + _fowards) + _offset, 
-                _up);
+                new Vector3(_target.Get_Position()) + _offset,
+                new Vector3(_target.Get_Position() + _fowards) + _offset,
+                new Vector3(_target.Get_Position() + _up));
         }
         public void Update_Pitch(float deltaDegY)
         {
@@ -62,15 +68,15 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         }
         public void Update_Fowards_Rotations(Vector3 newFowards)
         {
-            float temp = (Vector3.Cross(new Vector3(newFowards.X, 0, 0), new Vector3(Get_fowards().X, 0, 0))).Length / (new Vector3(Get_fowards().X, 0, 0).Length * new Vector3(newFowards.X, 0, 0).Length);
+            float temp = (Vector3.Cross(new Vector3(newFowards.X, 0, 0), _axisX)).Length / (_axisX.Length * new Vector3(newFowards.X, 0, 0).Length);
             temp = Math.Clamp(temp, -1f, 1f);
             float angleAroundX = (float)Math.Asin(temp);
 
-            temp = (Vector3.Cross(new Vector3(0, newFowards.Y, 0), new Vector3(0, Get_fowards().Y, 0))).Length / (new Vector3(0, Get_fowards().Y, 0).Length * new Vector3(0, newFowards.Y, 0).Length);
+            temp = (Vector3.Cross(new Vector3(0, newFowards.Y, 0), _axisY)).Length / (_axisY.Length * new Vector3(0, newFowards.Y, 0).Length);
             temp = Math.Clamp(temp, -1f, 1f);
             float angleAroundY = (float)Math.Asin(temp);
 
-            temp = (Vector3.Cross(new Vector3(0, 0, newFowards.Z), new Vector3(0, 0, Get_fowards().Z))).Length / (new Vector3(0, 0, Get_fowards().Z).Length * new Vector3(0, 0, newFowards.Z).Length);
+            temp = (Vector3.Cross(new Vector3(0, 0, newFowards.Z), _axisZ)).Length / (_axisZ.Length * new Vector3(0, 0, newFowards.Z).Length);
             temp = Math.Clamp(temp, -1f, 1f);
             float angleAroundZ = (float)Math.Asin(temp);
 
@@ -117,6 +123,18 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         {
             return _right;
         }
+        public Vector3 Get_axisX()
+        {
+            return _axisX;
+        }
+        public Vector3 Get_axisY()
+        {
+            return _axisY;
+        }
+        public Vector3 Get_axisZ()
+        {
+            return _axisZ;
+        }
         //set
         public void Set_Pitch(float value)
         {
@@ -137,6 +155,18 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         public void Set_right(Vector3 value)
         {
             _right = value;
+        }
+        public void Set_axisX(Vector3 value)
+        {
+            _axisX = value;
+        }
+        public void Set_axisY(Vector3 value)
+        {
+            _axisY = value;
+        }
+        public void Set_axisZ(Vector3 value)
+        {
+            _axisZ = value;
         }
     }
 }
