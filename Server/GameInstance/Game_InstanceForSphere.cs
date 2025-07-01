@@ -1,14 +1,14 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using Florence.ServerAssembly.GameInstance;
+using Florence.ServerAssembly.Graphics;
+using Florence.ServerAssembly.Graphics.Cameras;
+using Florence.ServerAssembly.Graphics.GameObjects;
+using Florence.ServerAssembly.Graphics.Renderables;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using Florence.ServerAssembly.Graphics.Cameras;
-using Florence.ServerAssembly.Graphics.GameObjects;
-using Florence.ServerAssembly.Graphics.Renderables;
-using Florence.ServerAssembly.Graphics;
-using Florence.ServerAssembly.GameInstance;
+using System.Diagnostics;
+using System.Drawing;
 
 namespace Florence.GameInstance
 {
@@ -19,17 +19,16 @@ namespace Florence.GameInstance
         private readonly string _title;
         private double _time;
         private readonly Color4 _backColor = new Color4(0.1f, 0.1f, 0.3f, 1.0f);
-        private OnSphereFirstPersonCamera _cameraFP;
-        private OnSphereThirdPersonCamera _cameraTP;
+
         private Matrix4 _projectionMatrix;
-        private float _fov = 45f;
+        private float _fov = 90f;
 
         private KeyboardState _lastKeyboardState;
         private MouseState _lastMouseState;
 
         private GameObjectFactory _gameObjectFactory;
+        private readonly List<APlayerObject> _playerObjects = new List<APlayerObject>();
         private readonly List<AGameObject> _gameObjects = new List<AGameObject>();
-        
         
         private ShaderProgram _texturedProgram;
         private ShaderProgram _solidProgram;
@@ -72,8 +71,8 @@ namespace Florence.GameInstance
             _texturedProgram.Link();
 
             var models = new Dictionary<string, ARenderable>();
-            models.Add("Player", new MipMapGeneratedRenderObject(RenderObjectFactory.CreateTexturedCube6(1, 1, 1), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\gameover.png", 8));
-            models.Add("Earth", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(5), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\dotted2.png", 8));
+            models.Add("Player", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(3), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\dotted.png", 8));
+            models.Add("Earth", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(3), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\grass.jpg", 8));
             models.Add("Wooden", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(3), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\wooden.png", 8));
             models.Add("Golden", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(3), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\golden.bmp", 8));
             models.Add("Asteroid", new MipMapGeneratedRenderObject(new IcoSphereFactory().Create(3), _texturedProgram.Id, "..\\..\\..\\..\\graphics\\Textures\\moonmap1k.jpg", 8));
@@ -86,22 +85,22 @@ namespace Florence.GameInstance
             //models.Add("TestObjectPreGen", new MipMapManualRenderObject(RenderObjectFactory.CreateTexturedCube(1, 1, 1), _texturedProgram.Id, "..\\..\\..\\graphics\Textures\asteroid texture one side mipmap levels 0 to 8.bmp", 9));
 
             _gameObjectFactory = new GameObjectFactory(models);
-
-            _gameObjects.Add(_gameObjectFactory.Create_MapSphereFloor());
-
+            _gameObjects.Add(_gameObjectFactory.CreateLocalWorld());
+            //_gameObjects.Add(_gameObjectFactory.Create_MapSphereFloor());
             _gameObjectFactory.Create_PlayerOnMapSphere();
-            _gameObjects.Add(_gameObjectFactory.Get_player());
-                        
+            _playerObjects.Add(_gameObjectFactory.Get_player());
+
             _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Wooden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(10f, 0f, 0f), new Vector3(1f)));
             _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Wooden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(-10f, 0f, 0f), new Vector3(1f)));
-            _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Golden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(10f, 10f, 10f), new Vector3(1f)));
-            _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Golden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(-10f, -10f, -10f), new Vector3(1f)));
+            _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Golden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(0f, 10f, 0f), new Vector3(1f)));
+            _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Golden", _gameObjectFactory.Get_player().Get_Position() + new Vector3(0f, -10f, 0f), new Vector3(1f)));
             _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Asteroid", _gameObjectFactory.Get_player().Get_Position() + new Vector3(0f, 0f, 10f), new Vector3(1f)));
             _gameObjects.Add(_gameObjectFactory.CreateSphericalAsteroid("Asteroid", _gameObjectFactory.Get_player().Get_Position() + new Vector3(0f, 0f, -10f), new Vector3(1f)));
 
             //_camera = new StaticCamera();
 
             _gameObjectFactory.Get_player().Create_Cameras_OnSphere();
+            //_gameObjectFactory.Get_player().Get_CameraFPOS().Initialise_Cameras();
 
             CursorVisible = false;
 
@@ -166,9 +165,21 @@ namespace Florence.GameInstance
 
             MouseState mouseState = Mouse.GetCursorState();
             var player = _gameObjectFactory.Get_player();
-
+            var camera = player.Get_CameraFPOS();
             if (_gameObjectFactory.Get_player().Get_IsFirstMouseMove() == true)
             {
+                camera.Set_Position(player.Get_Position());
+                camera.Set_Pitch(0);
+                camera.Set_Yaw(0);
+                camera.Set_Rotation(player.Get_Rotation());
+                camera.Set_fowards(player.Get_fowards());
+                camera.Set_up(player.Get_up());
+                camera.Set_offset(player.Get_up().Normalized() * 1.8f);
+                camera.Set_right(player.Get_right());
+                camera.Set_axisX(player.Get_axisX());
+                camera.Set_axisY(player.Get_axisY());
+                camera.Set_axisZ(player.Get_axisZ());
+
                 OpenTK.Input.Mouse.SetPosition((double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_X() / 2), (double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y() / 2));
                 _gameObjectFactory.Get_player().Set_IsFirstMouseMove(false);
             }
@@ -183,46 +194,17 @@ namespace Florence.GameInstance
                                 || (mouseState.Y != (float)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y() / 2)))
                             {
                                 Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(1, true);
-
-                                System.Console.WriteLine("TESTBENCH => mouse X = " + mouseState.X + "  mouse Y = " + mouseState.Y);
-
-                                //float sensitivity = _gameObjectFactory.Get_player().Get_sensitivity();
                                 float anglePerPixle = Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_fov() / Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y();
                                 float deltaDegX = anglePerPixle * (mouseState.X - (Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_X() / 2));
                                 float deltaDegY = -( anglePerPixle * (mouseState.Y - (Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y() / 2)));
                                 System.Console.WriteLine("TESTBENCH => deltaX = " + deltaDegX + "  deltaY = " + deltaDegY);
+                                float deltaRadAroundUp = (float)((Math.PI / 180) * deltaDegX);
+                                float deltaRadAroundRight = (float)((Math.PI / 180) * deltaDegY);
 
-                                player.Get_CameraFPOS().Update_Yaw(deltaDegX);
-                                System.Console.WriteLine("yaw => " + player.Get_CameraFPOS().Get_Yaw());
-                                player.Get_CameraFPOS().Update_Pitch(deltaDegY);
-                                System.Console.WriteLine("pitch => " + player.Get_CameraFPOS().Get_Pitch());
-
-                                Vector3 fowards = new Vector3(0, 0, 0);
-                                fowards.X = MathF.Cos(player.Get_CameraFPOS().Get_Pitch()) * MathF.Cos(player.Get_CameraFPOS().Get_Yaw());
-                                fowards.Y = MathF.Sin(player.Get_CameraFPOS().Get_Pitch());
-                                fowards.Z = MathF.Cos(player.Get_CameraFPOS().Get_Pitch()) * MathF.Sin(player.Get_CameraFPOS().Get_Yaw());
-                                System.Console.WriteLine("TESTBENCH => ALPHA");
-                                player.Get_CameraFPOS().Update_Fowards_Rotations(fowards);
-                                System.Console.WriteLine("TESTBENCH => BRAVO");
-                                player.Clamp_Rotations(player.Get_Rotation());
-                                Quaternion quart = Quaternion.FromEulerAngles(player.Get_Rotation().X, player.Get_Rotation().Y, player.Get_Rotation().Z);
-                                player.Get_CameraFPOS().Set_fowards(fowards);
-                                player.Get_CameraFPOS().Set_up(Vector3.Transform(player.Get_CameraFPOS().Get_up(), quart));
-                                player.Get_CameraFPOS().Set_right(Vector3.Cross(player.Get_CameraFPOS().Get_fowards(), player.Get_CameraFPOS().Get_up()));
-
-                                player.Get_CameraFPOS().Set_axisX(Vector3.Transform(player.Get_CameraFPOS().Get_axisX(), quart));
-                                player.Get_CameraFPOS().Set_axisY(Vector3.Transform(player.Get_CameraFPOS().Get_axisY(), quart));
-                                player.Get_CameraFPOS().Set_axisZ(Vector3.Transform(player.Get_CameraFPOS().Get_axisZ(), quart));
+                                camera.ApplyMouseAtPlayerPosition(player, deltaRadAroundUp, deltaRadAroundRight);
 
                                 OpenTK.Input.Mouse.SetPosition((double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_X() / 2), (double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y() / 2));
-
                                 Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(1, false);
-                                //Florence.ServerAssembly.Framework.GetGameServer().GetData().GetInput_Instnace().GetBuffer_Front_InputDouble().SetPraiseEventId(1);
-                                //Florence.ServerAssembly.Praise_Files.Praise1_Input input_subset_Praise1 = (Florence.ServerAssembly.Praise_Files.Praise1_Input)Florence.ServerAssembly.Framework.GetGameServer().GetData().GetInput_Instnace().GetBuffer_Front_InputDouble().Get_InputBufferSubset();
-                                //input_subset_Praise1.Set_Mouse_X(new_mouseState.X);
-                                //input_subset_Praise1.Set_Mouse_Y(new_mouseState.Y);
-                                //Florence.ServerAssembly.Framework.GetGameServer().GetData().Flip_InBufferToWrite();
-                                //Florence.ServerAssembly.Networking.CreateAndSendNewMessage(1);//todo
                             }
                         }
                         break;
@@ -233,14 +215,31 @@ namespace Florence.GameInstance
 
                 }
                 _lastMouseState = mouseState;
+                player.Set_lastRotation(camera.Get_Rotation());
                 Console.WriteLine("TESTBENCH => HandleMouse .. Done");
             }
         }
         private void HandleKeyboard(double dt)
         {
+            System.Console.WriteLine("TESTBENCH => Entered HandleKeyboard");
             var keyState = Keyboard.GetState();
-            switch (Get_cameraSelector())
+            var player = _gameObjectFactory.Get_player();
+            var camera = player.Get_CameraFPOS();
+            Vector3 fowards = new Vector3(0);
+            Vector3 backwards = new Vector3(0);
+            Vector3 left = new Vector3(0);
+            Vector3 right = new Vector3(0);
+
+            if (_gameObjectFactory.Get_player().Get_IsFirstMove() == true)
             {
+                player.Set_Position(new Vector3(1, 1, 1).Normalized());
+                player.CenterPlayerFreeLook();
+                _gameObjectFactory.Get_player().Set_IsFirstMove(false);
+            }
+            else
+            {
+                switch (Get_cameraSelector())
+                {
                 case false:
                     if (keyState.IsKeyDown(Key.Escape))
                     {
@@ -254,30 +253,32 @@ namespace Florence.GameInstance
                     {
                         Set_cameraSelector(!Get_cameraSelector());
                     }
-/*
-                    Vector3 fowards = new Vector3(0);
-                    Vector3 backwards = new Vector3(0);
-                    Vector3 left = new Vector3(0);
-                    Vector3 right = new Vector3(0);
                     if (keyState.IsKeyDown(Key.W))
                     {
+                        System.Console.WriteLine("TESTBENCH => fowards");
+                        fowards = camera.Get_fowards();
                         Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(2, true);
-                        fowards = _gameObjectFactory.Get_player().Get_CameraFPOS().Get_fowards();
                     }
                     if (keyState.IsKeyDown(Key.S))
                     {
+                        System.Console.WriteLine("TESTBENCH => backwards");
                         Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(3, true);
-                        backwards = -_gameObjectFactory.Get_player().Get_CameraFPOS().Get_fowards();
+                        backwards = -camera.Get_fowards();
+
                     }
                     if (keyState.IsKeyDown(Key.A))
                     {
+                        System.Console.WriteLine("TESTBENCH => right");
                         Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(4, true);
-                        right = _gameObjectFactory.Get_player().Get_CameraFPOS().Get_right();
+                        right = -camera.Get_right();
+
                     }
                     if (keyState.IsKeyDown(Key.D))
                     {
+                        System.Console.WriteLine("TESTBENCH => left");
                         Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(5, true);
-                        left = -_gameObjectFactory.Get_player().Get_CameraFPOS().Get_right();
+                        left = camera.Get_right();
+
                     }
                     if (Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().GetFlag_IsPraiseEvent(2) == true
                         || Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().GetFlag_IsPraiseEvent(3) == true
@@ -285,27 +286,13 @@ namespace Florence.GameInstance
                         || Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().GetFlag_IsPraiseEvent(5) == true
                     )
                     {
-                        var player = _gameObjectFactory.Get_player();
-                        var camera = _gameObjectFactory.Get_player().Get_CameraFPOS();
-
-                        _gameObjectFactory.Get_player().Set_direction(_gameObjectFactory.Get_player().Get_position() + new Vector3(fowards + backwards + right + left).Normalized());
-                        _gameObjectFactory.Get_player().Set_newPosition(_gameObjectFactory.Get_player().Get_position() + (Vector3.Multiply(_gameObjectFactory.Get_player().Get_direction(), (float)(_gameObjectFactory.Get_player().Get_cameraSpeed() * dt))));
-                        _gameObjectFactory.Get_player().Set_newPosition(_gameObjectFactory.Get_player().Get_position().Normalized() * 101f);
-
-                        player.Clamp_Rotations(camera.Calculate_Position_Rotations(_gameObjectFactory.Get_player().Get_position()));
-
-                        Quaternion quart = Quaternion.FromEulerAngles(player.Get_Rotation().X, player.Get_Rotation().Y, player.Get_Rotation().Z);
-                        camera.Set_fowards(Vector3.Transform(camera.Get_fowards(), quart));
-                        camera.Set_up(Vector3.Transform(camera.Get_up(), quart));
-                        camera.Set_right(Vector3.Cross(camera.Get_fowards(), camera.Get_up()));
-
-                        OpenTK.Input.Mouse.SetPosition((double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_X() / 2), (double)(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_ScreenSize_Y() / 2));
-
+                        player.Set_Direction(player.Get_Position() + new Vector3(fowards + backwards + right + left).Normalized());
+                        //camera.AlignePlayerAtGlobalSurfacePosition(player, dt);
                     }
                     for (int index = 2; index < 6; index++)
                     {
                         Florence.ServerAssembly.Framework.GetGameServer().GetData().GetData_Control().SetIsPraiseEvent(index, false);
-                    }*/
+                    }
                     break;
 
                 case true:
@@ -341,8 +328,11 @@ namespace Florence.GameInstance
                         }
                     }
                     break;
+                }
             }
             _lastKeyboardState = keyState;
+            player.Set_lastPosition(player.Get_Position());
+            player.Set_lastRotation(player.Get_Rotation());
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {

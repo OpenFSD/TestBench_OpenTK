@@ -8,8 +8,8 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
     {
         public int Score { get; set; }
         private ARenderable _original;
-        public Asteroid(ARenderable model, Vector3 position, Vector3 direction, Vector3 rotation, float velocity) 
-            : base(model, position, direction, rotation, velocity)
+        public Asteroid(ARenderable model) 
+            : base(model)
         {
             _original = model;
         }

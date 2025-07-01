@@ -17,7 +17,7 @@ namespace Florence.ServerAssembly
             System.Console.WriteLine("created => Florence.ServerAssembly.Server()");//TestBench
 
             Florence.ServerAssembly.Framework.GetGameServer().GetExecute().Create_And_Run_Graphics();
-
+            
             System.Console.WriteLine("Framework . Done");//TestBench
         }
 

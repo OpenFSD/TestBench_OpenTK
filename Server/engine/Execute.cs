@@ -48,7 +48,6 @@ namespace Florence.ServerAssembly
             {
                 gameInstance.Run(Florence.ServerAssembly.Framework.GetGameServer().GetData().GetSettings().Get_refreshRate());
             }
-
         }
 
         public Execute_Control GetExecute_Control()

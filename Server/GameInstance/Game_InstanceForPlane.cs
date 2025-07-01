@@ -94,13 +94,13 @@ namespace Florence.ServerAssembly
             //_gameObjects.Add();
 
            _gameObjectFactory.Create_PlayerOnMapPlane();
-            _gameObjects.Add(_gameObjectFactory.Get_player());
+            //_gameObjects.Add(_gameObjectFactory.Get_player());
 
 //for (int index_X = 0; index_X < 10; index_X++) 
            // { 
             //    for(int index_Z = 0; index_Z < 10; index_Z++)
               //  {
-                    _gameObjects.Add(_gameObjectFactory.CreateCube("Gameover", new Vector3(0f, 0f, 0f), new Vector3(0f), new Vector3(1f)));
+                    _gameObjects.Add(_gameObjectFactory.CreateCube("Gameover", new Vector3(0f, 0f, 0f), new Vector3(1f)));
              //   }
            // }
 
@@ -219,7 +219,7 @@ namespace Florence.ServerAssembly
 
                                 player.Get_CameraFPOP().Update_Fowards_Rotations(fowards);
 
-                                player.Clamp_Rotations(player.Get_Rotation());
+                                player.Trim_Rotation_To_Fundermental_Octive(player.Get_Rotation());
                                 Quaternion quart = Quaternion.FromEulerAngles(player.Get_Rotation().X, player.Get_Rotation().Y, player.Get_Rotation().Z);
                                 player.Get_CameraFPOP().Set_fowards(Vector3.Transform(fowards, quart));
                                 player.Get_CameraFPOP().Set_up(Vector3.Transform(player.Get_CameraFPOP().Get_up(), quart));

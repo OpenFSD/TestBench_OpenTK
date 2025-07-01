@@ -9,7 +9,7 @@ namespace Florence.ServerAssembly.GameInstance
 {
     public class Settings
     {
-        private float _fov = 45f;
+        private float _fov = 90f;
         private static int _refreshRate = 144;
         private static bool _systemInitialised = false;
         private char _screenSize_X;

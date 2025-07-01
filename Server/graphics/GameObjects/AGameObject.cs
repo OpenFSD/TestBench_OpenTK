@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using Florence.ServerAssembly.Graphics.Cameras;
 using Florence.ServerAssembly.Graphics.Renderables;
+using Florence.ServerAssembly.GameInstance;
 
 namespace Florence.ServerAssembly.Graphics.GameObjects
 {
@@ -11,32 +12,49 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
 
         private static int GameObjectCounter;
         public readonly int GameObjectNumber;
+       
         protected ARenderable _model;
+
         protected Vector3 _position;
         protected Vector3 _direction;
         protected Vector3 _rotation;
+
         private Vector3 _fowards;
         private Vector3 _up;
         private Vector3 _right;
-        protected float _speed;
-        protected Matrix4 _modelView;
-        protected Vector3 _scale;
 
-        public AGameObject(ARenderable model, Vector3 position, Vector3 direction, Vector3 rotation, float speed)
+        private Vector3 _axisX;
+        private Vector3 _axisY;
+        private Vector3 _axisZ;
+
+        private float _speed;
+        private Matrix4 _modelView;
+        private Vector3 _scale;
+
+        public AGameObject(ARenderable model)
         {
             _model = model;
-            _position = position;
-            _direction = direction;
-            _rotation = rotation;
-            _fowards = new Vector3(1f, 0f, 0f).Normalized();
-            _up = position.Normalized();
-            _right = Vector3.Cross(_fowards, _up);
-            _speed = speed;
+
+            _position = new OpenTK.Vector3(1, 1, 1).Normalized() * 100f;
+            _direction = Vector3.Zero;
+            _rotation = new Vector3((float)Math.PI / 4, (float)Math.PI / 4, (float)Math.PI * 3 / 4);
+
+            _fowards = Vector3.UnitX;
+            _up = Vector3.UnitZ;
+            _right = Vector3.UnitY;
+
+            _axisX = Vector3.UnitX;
+            _axisZ = Vector3.UnitZ;
+            _axisY = Vector3.UnitY;
+
+            _speed = 1.5f;
             _scale = new Vector3(1);
             GameObjectNumber = GameObjectCounter++;
         }
+
         public virtual void Update(double time, double delta)
         {
+
             _position += _direction * (_speed * (float) delta);
         }
         public virtual void Render(ICamera camera)
@@ -52,7 +70,7 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
             _model.Render();
         }
 
-        public void Clamp_Rotations(Vector3 value)
+        public Vector3 Trim_Rotation_To_Fundermental_Octive(Vector3 value)
         {
             float rot_X = value.X;
             if (rot_X > (float)(Math.PI / 180) * 360)
@@ -81,48 +99,90 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
             {
                 rot_Z = (rot_Z + (float)(Math.PI * 2));
             }
-            _rotation = new Vector3(rot_X, rot_Y, rot_Z);
+            return new Vector3(rot_X, rot_Y, rot_Z);
         }
 
-//get
-        public Vector3 Get_Direction()
-        {
-            return _direction;
-        }
-        public Vector3 Get_Scale()
-        {
-            return _scale;
-        }
+        //get
         public Vector3 Get_Position()
         {
             return _position;
         }
-        public Vector3 Get_Fowards()
+        public Vector3 Get_Direction()
         {
-            return _fowards;
+            return _direction;
         }
         public Vector3 Get_Rotation()
         {
             return _rotation;
         }
-
-//set
-        public void Set_Direction(Vector3 value)
+        public Vector3 Get_fowards()
         {
-            _direction = value;
+            return _fowards;
         }
-        public void Set_Scale(Vector3 scale)
+        public Vector3 Get_up()
         {
-            _scale = scale;
+            return _up;
         }
+        public Vector3 Get_right()
+        {
+            return _right;
+        }
+        public Vector3 Get_axisX()
+        {
+            return _axisX;
+        }
+        public Vector3 Get_axisY()
+        {
+            return _axisY;
+        }
+        public Vector3 Get_axisZ()
+        {
+            return _axisZ;
+        }
+        public Vector3 Get_Scale()
+        {
+            return _scale;
+        }
+        //set
         public void Set_Position(Vector3 position)
         {
             _position = position;
         }
-
+        public void Set_Direction(Vector3 value)
+        {
+            _direction = value;
+        }
         public void Set_Rotation(Vector3 value)
         {
             _rotation = value;
+        }
+        public void Set_fowards(Vector3 value)
+        {
+            _fowards = value;
+        }
+        public void Set_up(Vector3 value)
+        {
+            _up = value;
+        }
+        public void Set_right(Vector3 value)
+        {
+            _right = value;
+        }
+        public void Set_axisX(Vector3 value)
+        {
+            _axisX = value;
+        }
+        public void Set_axisY(Vector3 value)
+        {
+            _axisY = value;
+        }
+        public void Set_axisZ(Vector3 value)
+        {
+            _axisZ = value;
+        }
+        public void Set_Scale(Vector3 scale)
+        {
+            _scale = scale;
         }
     }
 }

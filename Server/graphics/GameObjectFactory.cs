@@ -12,7 +12,7 @@ namespace Florence.ServerAssembly.Graphics
         {
             _models = models;
         }
-        public Asteroid Create_MapSphereFloor()
+        public Asteroid CreateLocalWorld()
         {
             return CreateSphericalAsteroid("Earth", new Vector3(0f, 0f, 0f), new Vector3(100f, 100f, 100f));
         }
@@ -22,35 +22,23 @@ namespace Florence.ServerAssembly.Graphics
         }
         public void Create_PlayerOnMapPlane()
         {
-            _player = new Florence.ServerAssembly.GameInstance.Player(
-                _models["Player"],
-                new OpenTK.Vector3(5, 0, 5),
-                new OpenTK.Vector3(0, 0, 0),
-                new OpenTK.Vector3(0, 0, 0),
-                0
-            );
+            _player = new Florence.ServerAssembly.GameInstance.Player(_models["Player"]);
             while (_player == null) { /* Wait while is created */ }
         }
         public void Create_PlayerOnMapSphere()
         {
-            _player = new Florence.ServerAssembly.GameInstance.Player(
-                _models["Player"],
-                new OpenTK.Vector3(1f, 1f, 1f).Normalized() * 110f,
-                Vector3.Zero,
-                new OpenTK.Vector3((float)Math.PI*3/4, (float)Math.PI*3/4, (float)Math.PI*3/4),
-                0
-            );
+            _player = new Florence.ServerAssembly.GameInstance.Player(_models["Player"]);
             while (_player == null) { /* Wait while is created */ }
         }
         public Asteroid CreateSphericalAsteroid(string model, Vector3 position, Vector3 sclae)
         {
-            var obj = new Asteroid(_models[model], position, Vector3.Zero, Vector3.Zero, 0.0f);
+            var obj = new Asteroid(_models[model]);
             obj.Set_Scale(new Vector3(sclae));
             return obj;
         }
-        public AGameObject CreateCube(string model, Vector3 position, Vector3 rotation, Vector3 sclae)
+        public AGameObject CreateCube(string model, Vector3 position,Vector3 sclae)
         {
-            var obj = new GameOverCube(_models[model], position, rotation, Vector3.Zero, 0.0f);
+            var obj = new GameOverCube(_models[model]);
             obj.Set_Scale(new Vector3(sclae));
             return obj;
         }

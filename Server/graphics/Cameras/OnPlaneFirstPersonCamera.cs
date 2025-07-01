@@ -6,7 +6,7 @@ namespace Florence.ServerAssembly.Graphics.Cameras
     public class OnPlaneFirstPersonCamera : ICamera
     {
         public Matrix4 LookAtMatrix { get; private set; }
-        private readonly AGameObject _target;
+        private readonly APlayerObject _target;
         private readonly Vector3 _offset;
         private float _pitch;
         private float _yaw;
@@ -14,10 +14,10 @@ namespace Florence.ServerAssembly.Graphics.Cameras
         private Vector3 _up;
         private Vector3 _right;
 
-        public OnPlaneFirstPersonCamera(AGameObject target)
+        public OnPlaneFirstPersonCamera(APlayerObject target)
             : this(target, Vector3.Zero)
         {}
-        public OnPlaneFirstPersonCamera(AGameObject target, Vector3 offset)
+        public OnPlaneFirstPersonCamera(APlayerObject target, Vector3 offset)
         {
             _target = target;
             _offset = offset;

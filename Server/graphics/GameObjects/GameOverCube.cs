@@ -6,8 +6,8 @@ namespace Florence.ServerAssembly.Graphics.GameObjects
 {
     public class GameOverCube : AGameObject
     {
-        public GameOverCube(ARenderable model, Vector3 position, Vector3 direction, Vector3 rotation, float velocity) 
-            : base(model, position, direction, rotation, velocity)
+        public GameOverCube(ARenderable model) 
+            : base(model)
         {
         }
 

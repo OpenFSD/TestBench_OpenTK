@@ -5,14 +5,10 @@ using Florence.ServerAssembly.Graphics.Renderables;
 
 namespace Florence.ServerAssembly.GameInstance
 {
-    public class Player : AGameObject
+    public class Player : APlayerObject
     {
         private bool _firstMove;
         private bool _firstMouseMove;
-        //private Vector2 _lastMousePos;
-        private Vector3 _lastFowards;
-        private Vector3 _lastPosition;
-        private Vector3 _lastRotation;
         private OnPlaneFirstPersonCamera _cameraFPOP;
         private OnPlaneThirdPersonCamera _cameraTPOP;
         private OnSphereFirstPersonCamera _cameraFPOS;
@@ -20,52 +16,23 @@ namespace Florence.ServerAssembly.GameInstance
         private float cameraSpeed;
         private float sensitivity;
 
-        [Obsolete]
-        public Player(ARenderable model, Vector3 position, Vector3 direction, Vector3 rotation, float speed)
-            : base(model, position, direction, rotation, speed)
+        private Vector3 _lastPosition;
+        private Vector3 _lastRotation;
+
+        public Player(ARenderable model)
+            : base(model)
         {
             _firstMove = true;
             _firstMouseMove = true;
-            //mousePos = new Vector2(0, 0);
-            _lastFowards = new Vector3(1f, 0f, 0f);
-            _lastPosition = new Vector3(1f, 1f, 1f);
-            //_lastRotation = new Vector3((float)(Math.PI / 4), (float)(Math.PI / 4), (float)(Math.PI / 4));
             _cameraFPOP = null;
             _cameraTPOP = null;
             _cameraFPOS = null;
             _cameraTPOS = null;
             cameraSpeed = 1.5f;
             sensitivity = 1f;
-        }
-        public void Initialise()
-        {
-            Get_CameraFPOS().Set_Yaw(0);
-            System.Console.WriteLine("yaw => " + Get_CameraFPOS().Get_Yaw());
-            Get_CameraFPOS().Set_Pitch(0);
-            System.Console.WriteLine("pitch => " + Get_CameraFPOS().Get_Pitch());
 
-            float temp = (Vector3.Cross(new Vector3(Get_Position().X, 0, 0), new Vector3(Get_LastPosition().X, 0, 0))).Length / ((new Vector3(Get_LastPosition().X, 0, 0)).Length * (new Vector3(Get_Position().X, 0, 0)).Length);
-            temp = Math.Clamp(temp, -1f, 1f);
-            float angleAroundX = (float)Math.Asin(temp);
-
-            temp = (Vector3.Cross(new Vector3(0, Get_Position().Y, 0), new Vector3(0, Get_LastPosition().Y, 0))).Length / ((new Vector3(0, Get_LastPosition().Y, 0)).Length * (new Vector3(0, Get_Position().Y, 0)).Length);
-            temp = Math.Clamp(temp, -1f, 1f);
-            float angleAroundY = (float)Math.Asin(temp);
-
-            temp = (Vector3.Cross(new Vector3(0, 0, Get_Position().Z), new Vector3(0, 0, Get_LastPosition().Z))).Length / ((new Vector3(0, 0, Get_LastPosition().Z)).Length * (new Vector3(0, 0, Get_Position().Z)).Length);
-            temp = Math.Clamp(temp, -1f, 1f);
-            float angleAroundZ = (float)Math.Asin(temp);
-
-            Set_Rotation(new Vector3(angleAroundX, angleAroundY, angleAroundZ));
-            System.Console.WriteLine("TESTBENCH => delta_angleAroundX = " + angleAroundX + "  delta_angleAroundY = " + angleAroundY + "  delta_angleAroundZ = " + angleAroundZ);
-            Clamp_Rotations(Get_Rotation());
-            
-            Quaternion quart = Quaternion.FromEulerAngles(Get_Rotation().X, Get_Rotation().Y, Get_Rotation().Z);
-            Get_CameraFPOS().Set_fowards(Vector3.Transform(Get_CameraFPOS().Get_fowards(), quart));
-            Get_CameraFPOS().Set_up(Vector3.Transform(Get_CameraFPOS().Get_up(), quart));
-            Get_CameraFPOS().Set_right(Vector3.Cross(Get_CameraFPOS().Get_fowards(), Get_CameraFPOS().Get_up()));
-
-            _lastFowards = Get_Fowards();
+            _lastPosition = new Vector3(0);
+            _lastRotation = new Vector3(0);
         }
         public void Create_Cameras_OnPlane()
         {
@@ -83,7 +50,37 @@ namespace Florence.ServerAssembly.GameInstance
             _cameraTPOS = new Florence.ServerAssembly.Graphics.Cameras.OnSphereThirdPersonCamera(this);
             while (_cameraTPOS == null) { }
         }
-//Get
+
+        public void CenterPlayerFreeLook()
+        {
+            Vector3 fowards = new Vector3(0, 0, 0);
+            fowards.X = MathF.Cos(Get_CameraFPOS().Get_Pitch()) * MathF.Cos(Get_CameraFPOS().Get_Yaw());
+            fowards.Y = MathF.Sin(Get_CameraFPOS().Get_Pitch());
+            fowards.Z = MathF.Cos(Get_CameraFPOS().Get_Pitch()) * MathF.Sin(Get_CameraFPOS().Get_Yaw());
+
+            float pitch = Vector3.CalculateAngle(fowards, Get_axisX());
+            float yaw = Vector3.CalculateAngle(fowards, Get_axisY());
+            float roll = Vector3.CalculateAngle(fowards, Get_axisZ());
+            Set_Rotation(new Vector3(pitch, yaw, roll));
+            Set_Rotation(Trim_Rotation_To_Fundermental_Octive(Get_Rotation()));
+
+            Vector3 deltaRotations = new Vector3(
+                Get_Rotation().X - Get_lastRotation().X,
+                Get_Rotation().Y - Get_lastRotation().Y,
+                Get_Rotation().Z - Get_lastRotation().Z
+            );
+
+            Quaternion deltaRotationQuat = Quaternion.FromEulerAngles(deltaRotations.X, deltaRotations.Y, deltaRotations.Z);
+            Set_fowards(Vector3.Transform(Get_fowards(), deltaRotationQuat));
+            Set_up(Vector3.Transform(Get_up(), deltaRotationQuat));
+            Set_right(Vector3.Cross(Get_fowards(), Get_up()));
+
+            Set_axisX(Vector3.Transform(Get_axisX(), deltaRotationQuat).Normalized());
+            Set_axisY(Vector3.Transform(Get_axisY(), deltaRotationQuat).Normalized());
+            Set_axisZ(Vector3.Cross(Get_axisX(), Get_axisY()));
+        }
+
+        //Get
         public OnPlaneFirstPersonCamera Get_CameraFPOP()
         {
             return _cameraFPOP;
@@ -100,6 +97,7 @@ namespace Florence.ServerAssembly.GameInstance
         {
             return _cameraTPOS;
         }
+
         public bool Get_IsFirstMove()
         {
             return _firstMove;
@@ -108,16 +106,11 @@ namespace Florence.ServerAssembly.GameInstance
         {
             return _firstMouseMove;
         }
-
-        public Vector3 Get_LastPosition()
+        public Vector3 Get_lastPosition()
         {
-             return _lastPosition;
+            return _lastPosition;
         }
-        public Vector3 Get_LastFowards()
-        {
-            return _lastFowards;
-        }
-        public Vector3 Get_LastRotation()
+        public Vector3 Get_lastRotation()
         {
             return _lastRotation;
         }
@@ -125,7 +118,6 @@ namespace Florence.ServerAssembly.GameInstance
         {
             return cameraSpeed;
         }
-
         public float Get_sensitivity()
         {
             return sensitivity;
@@ -146,9 +138,10 @@ namespace Florence.ServerAssembly.GameInstance
         {
             _lastPosition = position;
         }
-        public void Set_lastFowards(Vector3 vector)
+
+        public void Set_lastRotation(Vector3 fowards)
         {
-            _lastFowards = vector;
+            _lastRotation = fowards;
         }
     }
 }
